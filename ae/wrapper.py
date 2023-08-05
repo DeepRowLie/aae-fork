@@ -1,6 +1,7 @@
 import os
 from typing import Any, Dict, Optional, Tuple
 
+# import cv2
 import gym
 import numpy as np
 
@@ -30,4 +31,9 @@ class AutoencoderWrapper(gym.Wrapper):
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, Dict[str, Any]]:
         obs, reward, done, infos = self.env.step(action)
+        # encoded_img = self.ae.encode_from_raw_image(obs[:, :, ::-1])
+        # reconstructed_img = self.ae.decode(encoded_img)[0]
+        # cv2.imshow("Original", obs[:, :, ::-1])
+        # cv2.imshow("Reconstruction", reconstructed_img)
+        # cv2.waitKey(0)
         return self.ae.encode_from_raw_image(obs[:, :, ::-1]).flatten(), reward, done, infos

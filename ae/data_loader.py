@@ -102,7 +102,6 @@ class RandomShadows(iaa.meta.Augmenter):
         right_low_ratio,
         right_high_ratio,
     ):
-
         img = Image.fromarray(img)
         w, h = img.size
         # h, w, c = img.shape
@@ -216,7 +215,6 @@ class DataLoader:
                     indices = np.arange(len(self.minibatchlist), dtype=np.int64)
 
                 for minibatch_idx in indices:
-
                     images = self.images_path[self.minibatchlist[minibatch_idx]]
 
                     if self.n_workers <= 1:
