@@ -21,6 +21,7 @@ parser.add_argument("-ae", "--ae-path", help="Path to saved autoencoder (otherwi
 parser.add_argument(
     "-f", "--folders", help="Path to folders containing images for training", type=str, nargs="+", required=True
 )
+parser.add_argument("-save", "--save-path", help="Path to save autoencoder model", type=str)
 parser.add_argument("--z-size", help="Latent space", type=int, default=32)
 parser.add_argument("--seed", help="Random generator seed", type=int)
 parser.add_argument("--n-samples", help="Max number of samples", type=int, default=-1)
@@ -85,8 +86,8 @@ autoencoder.to(autoencoder.device)
 
 best_loss = np.inf
 ae_id = int(time.time())
-save_path = f"logs/ae-{args.z_size}_{ae_id}.pkl"
-best_model_path = f"logs/ae-{args.z_size}_{ae_id}_best.pkl"
+save_path = f"{args.save_path}/ae-{args.z_size}_{ae_id}.pkl"
+best_model_path = f"{args.save_path}/ae-{args.z_size}_{ae_id}_best.pkl"
 os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
 try:
