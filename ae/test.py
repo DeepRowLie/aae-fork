@@ -45,7 +45,9 @@ if args.augment:
     augmenter = get_image_augmenter()
 
 # Small benchmark
-start_time = time.time()
+encode_time = []
+decode_time = []
+# start_time = time.time()
 for _ in range(args.n_samples):
     # Load test image
     image_idx = np.random.randint(n_samples)
@@ -53,12 +55,19 @@ for _ in range(args.n_samples):
     image = cv2.imread(image_path)
     input_image = image
 
+    start_time = time.time()
     encoded = autoencoder.encode_from_raw_image(input_image)
+    encode_time.append(time.time() - start_time)
+    start_time = time.time()
     reconstructed_image = autoencoder.decode(encoded)[0]
+    decode_time.append(time.time() - start_time)
 
-time_per_image = (time.time() - start_time) / args.n_samples
-print(f"{time_per_image:.4f}s")
-print(f"{1 / time_per_image:.4f}Hz")
+# time_per_image = (time.time() - start_time) / args.n_samples
+encode_time_per_image = np.array(encode_time).sum() / args.n_samples
+decode_time_per_image = np.array(decode_time).sum() / args.n_samples
+print(f"encode time per image{encode_time_per_image:.8f}s")
+print(f"decode time per image{decode_time_per_image:.8f}s")
+print(f"{1 / (encode_time_per_image + decode_time_per_image):.4f}Hz")
 
 errors = []
 
@@ -94,9 +103,10 @@ for _ in range(args.n_samples):
     cv2.imshow("Cropped", cropped_image)
 
     if augmenter is not None:
-        cv2.imshow("Augmented", input_image)
+        # cv2.imshow("Augmented", input_image)
+        cv2.imshow("Augmented", preprocess_image(input_image, convert_to_rgb=False, normalize=False))
 
-    cv2.imshow("Reconstruction", reconstructed_image)
+    cv2.imshow("Reconstruction", reconstructed_image[0])
     # stop if escape is pressed
     k = cv2.waitKey(0) & 0xFF
     if k == 27:

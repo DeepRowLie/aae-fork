@@ -83,7 +83,11 @@ window = pygame.display.set_mode((400, 400), RESIZABLE)
 
 control_throttle, control_steering = 0, 0
 
-env = gym.make("donkey-mountain-track-v0")
+import logging
+conf = {"max_cte": 24.0}
+# env = gym.make("donkey-mountain-track-v0")
+# env = gym.make("donkey-avc-sparkfun-v0", conf=conf)
+env = gym.make("donkey-generated-track-v0", conf=conf)
 obs = env.reset()
 for frame_num in range(total_frames):
     x, theta = 0, 0
@@ -120,14 +124,15 @@ for frame_num in range(total_frames):
     action = np.array([-control_steering, control_throttle])
 
     for _ in range(frame_skip):
-        obs, _, done, _ = env.step(action)
+        obs, _, done, info = env.step(action)
         if done:
             break
     if render:
         env.render()
     path = os.path.join(output_folder, f"{frame_num}.jpg")
     # Convert to BGR
-    cv2.imwrite(path, obs[:, :, ::-1])
+    # cv2.imwrite(path, obs[:, :, ::-1])
+    print(info['speed'])
     if done:
         obs = env.reset()
         control_throttle, control_steering = 0, 0

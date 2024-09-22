@@ -23,11 +23,14 @@ class AutoencoderWrapper(gym.Wrapper):
         assert ae_path is not None, "No path to autoencoder was provided"
         self.ae = load_ae(ae_path)
         # Update observation space
-        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(self.ae.z_size,), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(self.ae.z_size + 1,), dtype=np.float32)
 
     def reset(self) -> np.ndarray:
         # Important: Convert to BGR to match OpenCV convention
-        return self.ae.encode_from_raw_image(self.env.reset()[:, :, ::-1]).flatten()
+        obs = self.env.reset()
+        encoded_image = self.ae.encode_from_raw_image(obs[:, :, ::-1])
+        new_obs = np.concatenate([encoded_image.flatten(), [0.0]])
+        return new_obs
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, Dict[str, Any]]:
         obs, reward, done, infos = self.env.step(action)
@@ -36,4 +39,7 @@ class AutoencoderWrapper(gym.Wrapper):
         # cv2.imshow("Original", obs[:, :, ::-1])
         # cv2.imshow("Reconstruction", reconstructed_img)
         # cv2.waitKey(0)
-        return self.ae.encode_from_raw_image(obs[:, :, ::-1]).flatten(), reward, done, infos
+        encoded_image = self.ae.encode_from_raw_image(obs[:, :, ::-1])
+        speed = infos["speed"]
+        new_obs = np.concatenate([encoded_image.flatten(), [speed]])
+        return new_obs, reward, done, infos
